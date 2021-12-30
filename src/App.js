@@ -5,6 +5,8 @@ import About from './pages/About';
 import Footer from './components/layout/Footer';
 import Navbar from './components/layout/Navbar';
 import { GithubProvider } from './context/github/GithubContext';
+
+
 function App() {
   return (
     <GithubProvider>

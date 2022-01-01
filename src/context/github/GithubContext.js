@@ -10,6 +10,8 @@ export const GithubProvider = ({ children }) => {
   // initial state for reducer
   const initialState = {
     users: [],
+    user: {},
+    repos: [],
     loading: false,
   };
 
@@ -38,6 +40,50 @@ export const GithubProvider = ({ children }) => {
     });
   };
 
+  // GET SEARCHED USER
+  const searchUser = async (login) => {
+    setLoading();
+    const resp = await fetch(`${GITHUB_URL}/users/${login}`, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
+    });
+
+    if (resp.status === 404) {
+      // if there is no resp
+      window.location = "/notfound";
+    } else {
+      const data = await resp.json();
+
+      dispatch({
+        type: "GET_USER",
+        payload: data,
+      });
+    }
+  };
+
+  // GET USER REPOS
+  const getUserRepos = async (login) => {
+    setLoading();
+
+    const params = new URLSearchParams({
+      sort: "created",
+      per_page: 10,
+    });
+
+    const resp = await fetch(`${GITHUB_URL}/users/${login}/repos?${params}`, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
+    });
+    const data = await resp.json();
+
+    dispatch({
+      type: "GET_USER_REPOS",
+      payload: data,
+    });
+  };
+
   // CLEAR BUTTON
   const clearUsers = () => {
     dispatch({
@@ -51,9 +97,13 @@ export const GithubProvider = ({ children }) => {
   return (
     <GithubContext.Provider
       value={{
+        user: state.user,
+        repos: state.repos,
         users: state.users,
         loading: state.loading,
         searchUsers,
+        searchUser,
+        getUserRepos,
         clearUsers,
       }}
     >
